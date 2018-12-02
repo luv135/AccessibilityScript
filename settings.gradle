@@ -1,0 +1,4 @@
+include ':app'
+
+include ':logwherelibrary'
+project(':logwherelibrary').projectDir=new File("/Users/luowei/Documents/work/LogWhere/logwherelibrary")
