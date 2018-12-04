@@ -3,7 +3,7 @@ package com.luowei.qukanhelper
 import android.view.accessibility.AccessibilityNodeInfo
 import com.luowei.logwherelibrary.logDebug
 
-object LayoutPrinter {
+object LayoutInspector {
     fun printPacketInfo(root: AccessibilityNodeInfo?) {
         root ?: return
         val toString = analysisPacketInfo(root, 0).insert(0, "---\n").toString()
@@ -35,7 +35,9 @@ object LayoutPrinter {
         val count = info.childCount
         if (count > 0) {
             for (i in 0 until count) {
-                sb.append(analysisPacketInfo(info.getChild(i), tabcount + 1))
+                if (info.getChild(i) != null) {
+                    sb.append(analysisPacketInfo(info.getChild(i), tabcount + 1))
+                }
             }
         }
         return sb
