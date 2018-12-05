@@ -10,13 +10,13 @@ import android.view.accessibility.AccessibilityEvent
 
 class ScrllHelper {
 
+    private var success = false
 
     fun watch(service: AccessibilityService, event: AccessibilityEvent) {
         if (event.eventType == AccessibilityEvent.TYPE_VIEW_SCROLLED) {
 
         }
     }
-
 
     fun scrollDown(
         service: AccessibilityService,

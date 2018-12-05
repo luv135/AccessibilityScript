@@ -36,7 +36,7 @@ class MainPage : IPage {
     override fun enter(service: AccessibilityService) {
         this.service = service
         handler = ScrollHandler(service)
-        handler?.sendEmptyMessageDelayed(EVENT_DETAIL_SCROLL_WAIT_TIMEOUT, TimeUnit.SECONDS.toMillis(1))
+        handler?.sendEmptyMessageDelayed(EVENT_DETAIL_SCROLL_WAIT_TIMEOUT, TimeUnit.SECONDS.toMillis(2))
     }
 
     override fun leave(service: AccessibilityService) {
@@ -49,11 +49,27 @@ class MainPage : IPage {
         const val EVENT_DETAIL_SCROLL_WAIT_TIMEOUT = 1
     }
 
+    private fun requestPermission(service: AccessibilityService, event: AccessibilityEvent): Boolean {
+        val className = event.className
+        if ("android.app.AlertDialog" == className) {
+            if (event.text.toString().contains("提示, 系统检测到应用缺少必要权限")) {
+                val accessibilityNodeInfo = service.rootInActiveWindow
+                accessibilityNodeInfo ?: return false
+                accessibilityNodeInfo.findAccessibilityNodeInfosByText("忽略").getOrNull(0)?.performAction(
+                    AccessibilityNodeInfo.ACTION_CLICK
+                )
+                return true
+            }
+        }
+        return false
+    }
+
     override fun handleAccessibilityEvent(service: AccessibilityService, event: AccessibilityEvent): Boolean {
-//        if (!jumpToDetail(service, event)) {
-//            logDebug("not found jump to detailn")
+        if (requestPermission(service, event)) return true
+        if (!jumpToDetail(service, event)) {
+            logDebug("not found jump to detailn")
 //            AccessibilityServiceUtils.scrollDown(service)
-//        }
+        }
         return true
     }
 

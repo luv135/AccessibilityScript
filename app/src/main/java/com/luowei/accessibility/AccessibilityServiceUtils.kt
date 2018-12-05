@@ -53,7 +53,7 @@ object AccessibilityServiceUtils {
         val windowManager = service.getSystemService(Context.WINDOW_SERVICE) as WindowManager
         val size = Point()
         windowManager.defaultDisplay.getSize(size)
-        val length = 50
+        val length = 500
         val x1 = size.x / 2f
         val x2 = size.x / 2f
         val y1 = size.y / 2f + length
@@ -80,7 +80,7 @@ object AccessibilityServiceUtils {
         val windowManager = service.getSystemService(Context.WINDOW_SERVICE) as WindowManager
         val size = Point()
         windowManager.defaultDisplay.getSize(size)
-        val length = 50
+        val length = 500
         val x1 = size.x / 2f
         val x2 = size.x / 2f
         val y1 = size.y / 2f - length
