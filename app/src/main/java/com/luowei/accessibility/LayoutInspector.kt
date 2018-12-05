@@ -1,4 +1,4 @@
-package com.luowei.qukanhelper
+package com.luowei.accessibility
 
 import android.view.accessibility.AccessibilityNodeInfo
 import com.luowei.logwherelibrary.logDebug
@@ -36,7 +36,12 @@ object LayoutInspector {
         if (count > 0) {
             for (i in 0 until count) {
                 if (info.getChild(i) != null) {
-                    sb.append(analysisPacketInfo(info.getChild(i), tabcount + 1))
+                    sb.append(
+                        analysisPacketInfo(
+                            info.getChild(i),
+                            tabcount + 1
+                        )
+                    )
                 }
             }
         }
