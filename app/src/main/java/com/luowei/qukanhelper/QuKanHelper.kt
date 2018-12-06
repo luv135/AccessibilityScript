@@ -5,14 +5,14 @@ import android.view.accessibility.AccessibilityEvent
 import com.luowei.logwherelibrary.logDebug
 import java.util.*
 
-class QuKanHelper {
+class QuKanHelper(private val service: AccessibilityService) {
     private val windowMap = HashMap<String, (service: AccessibilityService, event: AccessibilityEvent) -> Unit>()
     private var currentPage: IPage? = null
-    private val pages = arrayListOf(MainPage(), DetailPage())
-    private val errorPage = ErrorPage()
+    private val pages = arrayListOf(MainPage(service), DetailPage(service), DialogPage(service))
+    private val errorPage = ErrorPage(service)
 
 
-    fun onAccessibilityEvent(service: AccessibilityService, event: AccessibilityEvent) {
+    fun onAccessibilityEvent(event: AccessibilityEvent) {
         if (event.packageName != "com.jifen.qukan") {
 //            currentPage?.leave(service)
             return
@@ -23,7 +23,7 @@ class QuKanHelper {
         logDebug(
             " eventType: " + AccessibilityEvent.eventTypeToString(eventType) +
                     " getText :" + event.text.toString()
-                    + "  getClassName:" + className + "  accessibilityNodeInfo:$accessibilityNodeInfo"
+                    + "  getClassName:" + className
         )
 
         when (event.eventType) {
@@ -31,10 +31,13 @@ class QuKanHelper {
                 windowChange(service, event)
             }
             AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED -> {
-                currentPage?.handleAccessibilityEvent(service, event)
+                currentPage?.handleAccessibilityEvent(event)
+            }
+            AccessibilityEvent.TYPE_VIEW_SCROLLED -> {
+
             }
         }
-//        AccessibilityServiceUtils.scrollDown(service)
+//        AccessibilityServiceUtils.scrollVertical(service)
 
 //        accessibilityNodeInfo ?: return
 //        function?.invoke(service, event)
@@ -57,10 +60,10 @@ class QuKanHelper {
         val className = event.className.toString()
         val page = pages.find { it.matchPage(className) } ?: errorPage
         if (currentPage != page) {
-            currentPage?.leave(service)
-            page?.enter(service)
+            currentPage?.leave()
+            page?.enter()
             currentPage = page
         }
-        currentPage?.handleAccessibilityEvent(service, event)
+        currentPage?.handleAccessibilityEvent(event)
     }
 }

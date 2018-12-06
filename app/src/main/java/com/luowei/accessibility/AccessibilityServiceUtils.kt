@@ -46,14 +46,18 @@ object AccessibilityServiceUtils {
         return false
     }
 
-    fun scrollDown(
+    fun scrollVertical(
         service: AccessibilityService,
-        callback: AccessibilityService.GestureResultCallback? = null
+        dy: Int = 0,
+        down: Boolean = true
     ): Boolean {
         val windowManager = service.getSystemService(Context.WINDOW_SERVICE) as WindowManager
         val size = Point()
         windowManager.defaultDisplay.getSize(size)
-        val length = 500
+        val length = if (dy != 0) dy else {
+            if (down) 500 else -500
+        }
+
         val x1 = size.x / 2f
         val x2 = size.x / 2f
         val y1 = size.y / 2f + length
@@ -66,7 +70,7 @@ object AccessibilityServiceUtils {
         val gestureDescription =
             GestureDescription.Builder().addStroke(GestureDescription.StrokeDescription(path, 10, 1000))
                 .build()
-        return service.dispatchGesture(gestureDescription, callback, null)
+        return service.dispatchGesture(gestureDescription, null, null)
 //        var retry = 3
 //        while (retry-- > 0 &&
 //            !service.dispatchGesture(gestureDescription, callback, null)
@@ -89,6 +93,22 @@ object AccessibilityServiceUtils {
         path.apply {
             moveTo(x1, y1)
             lineTo(x2, y2)
+        }
+        val gestureDescription =
+            GestureDescription.Builder().addStroke(GestureDescription.StrokeDescription(path, 0, 100))
+                .build()
+        service.dispatchGesture(gestureDescription, null, null)
+    }
+
+    fun click(service: AccessibilityService) {
+        val windowManager = service.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+        val size = Point()
+        windowManager.defaultDisplay.getSize(size)
+        val x1 = size.x / 2f
+        val y1 = size.y / 2f
+        val path = Path()
+        path.apply {
+            moveTo(x1, y1)
         }
         val gestureDescription =
             GestureDescription.Builder().addStroke(GestureDescription.StrokeDescription(path, 0, 100))

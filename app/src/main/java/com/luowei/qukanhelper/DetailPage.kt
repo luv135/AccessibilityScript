@@ -1,63 +1,49 @@
 package com.luowei.qukanhelper
 
 import android.accessibilityservice.AccessibilityService
-import android.os.Handler
-import android.os.Message
 import android.view.accessibility.AccessibilityEvent
 import com.luowei.accessibility.AccessibilityServiceUtils
 import com.luowei.logwherelibrary.logDebug
+import io.reactivex.Observable
+import io.reactivex.disposables.Disposable
 import java.util.*
 import java.util.concurrent.TimeUnit
 
-class DetailPage : IPage {
+class DetailPage(val service: AccessibilityService) : IPage {
     override fun matchPage(className: String): Boolean {
         return className == "com.jifen.qukan.newsdetail.news.NewsDetailActivity"
     }
 
-    private var handler: ScrollHandler? = null
-
-    class ScrollHandler(val service: AccessibilityService) : Handler() {
-        override fun handleMessage(msg: Message) {
-            when (msg.what) {
-                EVENT_SCROLL -> {
-                    logDebug("DetailPage page, scroll down")
-                    if (Random().nextInt(10) < 8)
-                        AccessibilityServiceUtils.scrollDown(service)
-                    else
-                        AccessibilityServiceUtils.scrollUp(service)
-                    sendEmptyMessageDelayed(EVENT_SCROLL, TimeUnit.SECONDS.toMillis(1))
-                }
-                EVENT_BACK -> {
-                    service.performGlobalAction(AccessibilityService.GLOBAL_ACTION_BACK)
-                }
-            }
-        }
-    }
-
-    private var service: AccessibilityService? = null
-
-    override fun enter(service: AccessibilityService) {
-        this.service = service
-        handler = ScrollHandler(service)
+    override fun enter() {
         logDebug("detail enter")
-        handler?.sendEmptyMessageDelayed(EVENT_SCROLL, TimeUnit.SECONDS.toMillis(1))
-        handler?.sendEmptyMessageDelayed(EVENT_BACK, TimeUnit.SECONDS.toMillis(7))
+        startScrollDown()
     }
 
-    override fun leave(service: AccessibilityService) {
-        this.service = null
+    private var disposable: Disposable? = null
+
+    private fun startScrollDown() {
+        disposable = Observable.interval(2, TimeUnit.SECONDS)
+            .map {
+                if (Random().nextInt(10) < 8)
+                    AccessibilityServiceUtils.scrollVertical(service, down = true)
+                else
+                    AccessibilityServiceUtils.scrollVertical(service, down = false)
+                it
+            }.filter { it > 10 }.subscribe {
+                service.performGlobalAction(AccessibilityService.GLOBAL_ACTION_BACK)
+            }
+    }
+
+    private fun stopScrollDown() {
+        disposable?.dispose()
+    }
+
+    override fun leave() {
         logDebug("detail leave")
-        handler?.removeMessages(EVENT_SCROLL)
-        handler?.removeMessages(EVENT_BACK)
+        stopScrollDown()
 
     }
 
-    companion object {
-        const val EVENT_SCROLL = 1
-        const val EVENT_BACK = 3
-    }
-
-    override fun handleAccessibilityEvent(service: AccessibilityService, event: AccessibilityEvent): Boolean {
-        return true
+    override fun handleAccessibilityEvent(event: AccessibilityEvent) {
     }
 }

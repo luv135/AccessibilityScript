@@ -6,7 +6,7 @@ import com.luowei.logwherelibrary.logDebug
 import com.luowei.qukanhelper.QuKanHelper
 
 class QuKanAccessibilityService : AccessibilityService() {
-    private val qukanHelper = QuKanHelper()
+    private val qukanHelper = QuKanHelper(this)
 
     override fun onInterrupt() {
         logDebug("inter")
@@ -14,11 +14,6 @@ class QuKanAccessibilityService : AccessibilityService() {
 
     override fun onAccessibilityEvent(event: AccessibilityEvent) {
 //        if(event.packageName=="com.android.launcher3") {
-        qukanHelper.onAccessibilityEvent(this, event)
+        qukanHelper.onAccessibilityEvent(event)
     }
-
-    private var tabcount = -1
-    private var sb: StringBuilder? = null
-
-
 }
