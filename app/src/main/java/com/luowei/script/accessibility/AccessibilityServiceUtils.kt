@@ -1,4 +1,4 @@
-package com.luowei.accessibility
+package com.luowei.script.accessibility
 
 import android.accessibilityservice.AccessibilityService
 import android.accessibilityservice.GestureDescription

@@ -1,4 +1,4 @@
-package com.luowei.qukanhelper
+package com.luowei.script.program.qukanhelper
 
 import android.support.test.InstrumentationRegistry
 import android.support.test.runner.AndroidJUnit4
@@ -17,6 +17,6 @@ class ExampleInstrumentedTest {
     fun useAppContext() {
         // Context of the app under test.
         val appContext = InstrumentationRegistry.getTargetContext()
-        assertEquals("com.luowei.qukanhelper", appContext.packageName)
+        assertEquals("com.luowei.script.program.qukanhelper", appContext.packageName)
     }
 }

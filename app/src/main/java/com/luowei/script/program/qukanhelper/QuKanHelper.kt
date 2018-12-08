@@ -1,9 +1,14 @@
-package com.luowei.qukanhelper
+package com.luowei.script.program.qukanhelper
 
 import android.accessibilityservice.AccessibilityService
+import android.content.Intent
 import android.view.accessibility.AccessibilityEvent
 import com.luowei.logwherelibrary.logDebug
+import com.luowei.script.program.IPage
+import io.reactivex.Observable
+import io.reactivex.disposables.Disposable
 import java.util.*
+import java.util.concurrent.TimeUnit
 
 class QuKanHelper(private val service: AccessibilityService) {
     private val windowMap = HashMap<String, (service: AccessibilityService, event: AccessibilityEvent) -> Unit>()
@@ -11,24 +16,21 @@ class QuKanHelper(private val service: AccessibilityService) {
     private val pages = arrayListOf(MainPage(service), DetailPage(service), DialogPage(service))
     private val errorPage = ErrorPage(service)
 
+    private var subscribe: Disposable? = null
+
 
     fun onAccessibilityEvent(event: AccessibilityEvent) {
         if (event.packageName != "com.jifen.qukan") {
-//            currentPage?.leave(service)
+            logDebug("package = ${event.packageName}")
+            startApp()
             return
+        } else {
+            cancelStartApp()
         }
-        val eventType = event.eventType
-        val accessibilityNodeInfo = service.rootInActiveWindow
-        val className = event.className
-        logDebug(
-            " eventType: " + AccessibilityEvent.eventTypeToString(eventType) +
-                    " getText :" + event.text.toString()
-                    + "  getClassName:" + className
-        )
 
         when (event.eventType) {
             AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED -> {
-                windowChange(service, event)
+                windowChange(event)
             }
             AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED -> {
                 currentPage?.handleAccessibilityEvent(event)
@@ -41,29 +43,41 @@ class QuKanHelper(private val service: AccessibilityService) {
 
 //        accessibilityNodeInfo ?: return
 //        function?.invoke(service, event)
-//        LayoutInspector.printPacketInfo(service.rootInActiveWindow)
+//        LayoutInspector.packagetLayoutInfo(service.rootInActiveWindow)
 //        if (event.className == "android.support.v7.widget.RecyclerView") {
 //        }
 //            rootInActiveWindow.getChild(0).performAction(AccessibilityNodeInfo.ACTION_SCROLL_BACKWARD)
 //        if (accessibilityNodeInfo != null) {
-//            printPacketInfo(accessibilityNodeInfo)
+//            packagetLayoutInfo(accessibilityNodeInfo)
 //        }
 
+    }
+
+    fun startApp() {
+        if (subscribe?.isDisposed != true)
+            subscribe = Observable.timer(5, TimeUnit.SECONDS)
+                .subscribe {
+                    val launchIntentForPackage = service.packageManager.getLaunchIntentForPackage("com.jifen.qukan")
+                        .apply { addFlags(Intent.FLAG_ACTIVITY_NEW_TASK) }
+                    service.startActivity(launchIntentForPackage)
+                }
+    }
+
+    private fun cancelStartApp() {
+        subscribe?.dispose()
+        subscribe = null
     }
 
     private var currentWindow: String = ""
 
     private fun windowChange(
-        service: AccessibilityService,
         event: AccessibilityEvent
     ) {
         val className = event.className.toString()
         val page = pages.find { it.matchPage(className) } ?: errorPage
-        if (currentPage != page) {
-            currentPage?.leave()
-            page?.enter()
-            currentPage = page
-        }
+        currentPage?.leave()
+        page.enter()
+        currentPage = page
         currentPage?.handleAccessibilityEvent(event)
     }
 }

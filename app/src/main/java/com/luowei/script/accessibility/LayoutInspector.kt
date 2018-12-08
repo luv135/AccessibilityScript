@@ -1,14 +1,12 @@
-package com.luowei.accessibility
+package com.luowei.script.accessibility
 
 import android.view.accessibility.AccessibilityNodeInfo
-import com.luowei.logwherelibrary.logDebug
 
 object LayoutInspector {
-    fun printPacketInfo(root: AccessibilityNodeInfo?) {
-        root ?: return
+    fun packagetLayoutInfo(root: AccessibilityNodeInfo?): String {
+        root ?: return ""
         val toString = analysisPacketInfo(root, 0).insert(0, "---\n").toString()
-        logDebug(toString)
-
+        return toString
     }
 
     private fun analysisPacketInfo(info: AccessibilityNodeInfo, tabcount: Int): StringBuilder {

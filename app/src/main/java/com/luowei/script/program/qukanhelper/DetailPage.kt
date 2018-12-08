@@ -1,9 +1,10 @@
-package com.luowei.qukanhelper
+package com.luowei.script.program.qukanhelper
 
 import android.accessibilityservice.AccessibilityService
 import android.view.accessibility.AccessibilityEvent
-import com.luowei.accessibility.AccessibilityServiceUtils
 import com.luowei.logwherelibrary.logDebug
+import com.luowei.script.accessibility.AccessibilityServiceUtils
+import com.luowei.script.program.IPage
 import io.reactivex.Observable
 import io.reactivex.disposables.Disposable
 import java.util.*
@@ -29,7 +30,7 @@ class DetailPage(val service: AccessibilityService) : IPage {
                 else
                     AccessibilityServiceUtils.scrollVertical(service, down = false)
                 it
-            }.filter { it > 10 }.subscribe {
+            }.filter { it > 10 + Random().nextInt(2) }.subscribe {
                 service.performGlobalAction(AccessibilityService.GLOBAL_ACTION_BACK)
             }
     }

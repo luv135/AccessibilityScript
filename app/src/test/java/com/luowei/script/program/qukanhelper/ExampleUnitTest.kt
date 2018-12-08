@@ -1,4 +1,4 @@
-package com.luowei.qukanhelper
+package com.luowei.script.program.qukanhelper
 
 import org.junit.Assert.assertEquals
 import org.junit.Test

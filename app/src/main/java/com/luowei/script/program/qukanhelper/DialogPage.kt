@@ -1,8 +1,9 @@
-package com.luowei.qukanhelper
+package com.luowei.script.program.qukanhelper
 
 import android.accessibilityservice.AccessibilityService
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
+import com.luowei.script.program.IPage
 
 class DialogPage(val service: AccessibilityService) : IPage {
     override fun matchPage(className: String): Boolean {

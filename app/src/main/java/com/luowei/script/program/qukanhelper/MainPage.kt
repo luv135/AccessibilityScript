@@ -1,12 +1,11 @@
-package com.luowei.qukanhelper
+package com.luowei.script.program.qukanhelper
 
 import android.accessibilityservice.AccessibilityService
-import android.graphics.Rect
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
-import com.luowei.accessibility.AccessibilityServiceUtils
-import com.luowei.accessibility.LayoutInspector
 import com.luowei.logwherelibrary.logDebug
+import com.luowei.script.accessibility.AccessibilityServiceUtils
+import com.luowei.script.program.IPage
 import io.reactivex.Observable
 import io.reactivex.disposables.Disposable
 import java.util.concurrent.TimeUnit
@@ -24,6 +23,7 @@ class MainPage(private val service: AccessibilityService) : IPage {
         startScrollDown()
     }
 
+
     override fun leave() {
         stopScrollDown()
     }
@@ -40,14 +40,30 @@ class MainPage(private val service: AccessibilityService) : IPage {
         disposable?.dispose()
     }
 
-    private fun initViewPostion(accessibilityNodeInfo: AccessibilityNodeInfo) {
-        val shuaxin = Rect()
-        accessibilityNodeInfo.findAccessibilityNodeInfosByText("刷新").getOrNull(0)
+    private fun linquClick(accessibilityNodeInfo: AccessibilityNodeInfo) {
+        textClick("领取")
+    }
+
+    private fun shuaxinClick(accessibilityNodeInfo: AccessibilityNodeInfo) {
+        textClick("刷新")
+    }
+
+    private fun toutiaoTableCLick() {
+        textClick("头条")
+    }
+
+    private fun textClick(text: String) {
+        service.rootInActiveWindow?.findAccessibilityNodeInfosByText(text)?.getOrNull(0)
             ?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
     }
 
-
     override fun handleAccessibilityEvent(event: AccessibilityEvent) {
+        service.rootInActiveWindow?.let {
+            linquClick(it)
+            if (blackList.size > 5)
+                shuaxinClick(it)
+
+        }
         jumpToDetail(service, event)
 //        service.rootInActiveWindow?.findAccessibilityNodeInfosByText("领取")?.getOrNull(0)
 //            ?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
@@ -60,12 +76,13 @@ class MainPage(private val service: AccessibilityService) : IPage {
             logDebug("accessibilityNodeInfo is null")
             return false
         }
-        LayoutInspector.printPacketInfo(accessibilityNodeInfo)
+//        LayoutInspector.packagetLayoutInfo(accessibilityNodeInfo)
 
         val recyclerView =
             accessibilityNodeInfo.findAccessibilityNodeInfosByViewId("com.jifen.qukan:id/nt").getOrNull(0)
         if (recyclerView == null) {
             logDebug("recyclerView is null")
+            toutiaoTableCLick()
             return false
         }
         for (i in 0 until recyclerView.childCount) {
@@ -74,7 +91,7 @@ class MainPage(private val service: AccessibilityService) : IPage {
             if (title != null && !blackList.contains(title) && child.findAccessibilityNodeInfosByText("广告").isEmpty() &&
                 child.findAccessibilityNodeInfosByText("置顶").isEmpty()
             ) {
-//                LayoutInspector.printPacketInfo(child)
+//                LayoutInspector.packagetLayoutInfo(child)
                 blackList.add(title)
                 child.performAction(AccessibilityNodeInfo.ACTION_CLICK)
                 return true
